@@ -12,7 +12,7 @@ use std::io::Write;
 
 use std::time::Instant;
 
-use rustls::ClientConfig;
+use rustls::{ClientConfig, ServerName};
 
 use crate::error::*;
 use crate::framing::*;
@@ -306,20 +306,20 @@ impl<N: Network> Transport<N> {
     }
 }
 
-#[derive(Clone)]
-pub struct TlsConfig(ClientConfig);
+pub type Host = (String, u16);
 
-impl TlsConfig {
-    fn get_config(self) -> ClientConfig {
-        match self {
-            TlsConfig(conf) => conf
-        }
-    }
+#[derive(Clone)]
+pub struct TlsConfig {
+    pub config: ClientConfig,
+    pub server_name: ServerName
 }
 
 impl Debug for TlsConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TlsConfig").finish()
+        f
+        .debug_struct("TlsConfig")
+        .field("server_name", &self.server_name)
+        .finish_non_exhaustive()
     }
 }
 
@@ -329,9 +329,9 @@ pub mod mio {
     use mio::{Interest, Poll, Registry, Token};
     use rustls::{ClientConnection, StreamOwned};
 
-    use super::{Network, TlsConfig};
+    use super::{Host, Network, TlsConfig};
     use crate::error::*;
-    use std::convert::TryInto;
+    use crate::utils::as_server_name;
     use std::io::Read;
     use std::io::Write;
     use std::net::ToSocketAddrs;
@@ -367,7 +367,7 @@ pub mod mio {
     }
     
     impl MioNetwork {
-        pub fn connect<S: ToSocketAddrs>(host: &S) -> Result<Self> {
+        pub fn connect(host: &Host) -> Result<Self> {
             let mut addrs = host.to_socket_addrs()?;
             let address = addrs
                 .next()
@@ -378,14 +378,14 @@ pub mod mio {
             })
         }
 
-        pub fn connect_with_tls<S: ToSocketAddrs>(host: &S, tls_config: TlsConfig) -> Result<Self> {
+        pub fn connect_with_tls(host: &Host, tls_config: TlsConfig) -> Result<Self> {
             let mut addrs = host.to_socket_addrs()?;
             let address = addrs
                 .next()
                 .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))?;
             
-            let server_name = "TBD".try_into().unwrap();
-            let conn = rustls::ClientConnection::new(Arc::new(tls_config.get_config()), server_name).unwrap();
+            let conn = 
+                rustls::ClientConnection::new(Arc::new(tls_config.config), as_server_name(&host)).unwrap();
             let sock = TcpStream::connect(address).unwrap();
 
             Ok(MioNetwork {

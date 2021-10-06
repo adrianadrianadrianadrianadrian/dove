@@ -5,7 +5,41 @@ use hmac::{Hmac, Mac, NewMac};
 type HMAC256 = Hmac<Sha256>;
 use crate::error::*;
 
-async fn put_token(session: Session, resource_uri: &str, sasl_key_name: &str, sasl_key: &str, expiry_seconds: u64) -> Result<()>
+pub struct SasConfig {
+    pub sasl_key_name: String,
+    pub sasl_key: String,
+    pub token_expiry: u64,
+    pub address: String
+}
+
+pub enum CbsOptions {
+    Sas(SasConfig)
+}
+
+impl SasConfig {
+    pub fn new(
+        sasl_key_name: &str, 
+        sasl_key: &str, 
+        token_expiry: u64, 
+        address: &str,
+    ) -> CbsOptions {
+        CbsOptions::Sas(
+            SasConfig 
+            { sasl_key_name: String::from(sasl_key_name)
+            , sasl_key: String::from(sasl_key)
+            , token_expiry
+            , address: String::from(address)
+            })
+    }
+}
+
+pub async fn put_sas_token(
+    session: &Session, 
+    resource_uri: &str, 
+    sasl_key_name: &str, 
+    sasl_key: &str, 
+    expiry_seconds: u64
+) -> Result<()>
 {
     let token = create_sas_token(resource_uri, sasl_key_name, sasl_key, expiry_seconds);
     let sender = session.new_sender("$cbs").await?;
@@ -33,13 +67,17 @@ async fn put_token(session: Session, resource_uri: &str, sasl_key_name: &str, sa
             });
 
             match success {
-                true => Ok(()),
+                true => (),
                 false => panic!("put-token failed. Server responded with {:?}.", props)
             }
         },
         None => panic!("put-token failed. Server responded with no application properties.")
     }
     // Use amqpErrors above..
+
+    sender.close(None)?;
+    receiver.close(None)?;
+    Ok(())
 }
 
 fn create_sas_token(

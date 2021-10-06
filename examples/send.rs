@@ -42,7 +42,7 @@ fn main() {
     // connect creates the TCP connection and sends OPEN frame.
     block_on(async {
         let connection = container
-            .connect(format!("{}:{}", url.hostname, url.port), opts)
+            .connect(url.hostname, url.port, opts)
             .await
             .expect("connection not created");
 
