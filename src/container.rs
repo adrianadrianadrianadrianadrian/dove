@@ -240,7 +240,10 @@ impl ContainerInner {
         thread::spawn({
             move || {
                 let result: Result<_> = (|| {
-                    let network = transport::mio::MioNetwork::connect(&host)?;
+                    let network = match &opts.tls_config {
+                        Some(config) => transport::mio::MioNetwork::connect_with_tls(&host, config.clone())?,
+                        None => transport::mio::MioNetwork::connect(&host)?
+                    };
                     let transport = transport::Transport::new(network, 1024);
                     let connection = conn::connect(transport, opts)?;
                     Ok(connection)

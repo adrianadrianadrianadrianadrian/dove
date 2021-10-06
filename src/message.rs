@@ -220,6 +220,24 @@ impl MessageHeader {
 }
 
 impl MessageProperties {
+    pub fn new() -> Self {
+        MessageProperties {
+            message_id: None,
+            user_id: None,
+            to: None,
+            subject: None,
+            reply_to: None,
+            correlation_id: None,
+            content_type: None,
+            content_encoding: None,
+            absolute_expiry_time: None,
+            creation_time: None,
+            group_id: None,
+            group_sequence: None,
+            reply_to_group_id: None,
+        }
+    }
+
     pub fn encode(&self, writer: &mut dyn Write) -> Result<()> {
         let mut encoder = FrameEncoder::new(DESC_MESSAGE_PROPERTIES);
         encoder.encode_arg(&self.message_id)?;
@@ -240,21 +258,7 @@ impl MessageProperties {
     }
 
     pub fn decode(mut decoder: FrameDecoder) -> Result<MessageProperties> {
-        let mut properties = MessageProperties {
-            message_id: None,
-            user_id: None,
-            to: None,
-            subject: None,
-            reply_to: None,
-            correlation_id: None,
-            content_type: None,
-            content_encoding: None,
-            absolute_expiry_time: None,
-            creation_time: None,
-            group_id: None,
-            group_sequence: None,
-            reply_to_group_id: None,
-        };
+        let mut properties = MessageProperties::new();
         decoder.decode_optional(&mut properties.message_id)?;
         decoder.decode_optional(&mut properties.user_id)?;
         decoder.decode_optional(&mut properties.to)?;
