@@ -354,6 +354,7 @@ impl ConnectionDriver {
 
 impl SessionDriver {
     pub fn dispatch(&self, frame: AmqpFrame) -> Result<()> {
+        trace!("Dispatching frame: {:?}", frame);
         match &frame.performative {
             Some(Performative::Attach(attach_response)) => {
                 let link = self
@@ -445,10 +446,10 @@ impl SessionDriver {
                                     link.rx.send(frame.clone())?;
                                 }
                             } else {
-                                warn!("Disposition for invalid handle({}) received", handle);
+                                debug!("Disposition for invalid handle({}) received", handle);
                             }
                         } else {
-                            warn!("Link mapping not found for {}", handle);
+                            debug!("Link mapping not found for {}", handle);
                         }
                     }
                 }
