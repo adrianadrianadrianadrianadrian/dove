@@ -46,6 +46,8 @@ pub enum AmqpError {
     SendError,
     #[error("ReceiveError: {0:?}")]
     ReceiveError(TryRecvError),
+    #[error("CbsError")]
+    CbsError,
 
     #[error("amqp:internal-error")]
     AmqpInternalError,

@@ -65,15 +65,14 @@ pub async fn put_sas_token(
                 *key == Value::String(String::from("status-code")) 
                     && (*val == Value::Int(202) || *val == Value::Int(200))
             });
-
+            
             match success {
-                true => (),
-                false => panic!("put-token failed. Server responded with {:?}.", props)
+                true => Ok(()),
+                false => Err(AmqpError::CbsError)
             }
         },
-        None => panic!("put-token failed. Server responded with no application properties.")
-    }
-    // Use amqpErrors above..
+        None => Err(AmqpError::CbsError)
+    }?;
 
     sender.close(None)?;
     receiver.close(None)?;

@@ -1,6 +1,5 @@
 
 use std::convert::TryInto;
-use dove::cbs::SasConfig;
 use dove::container::*;
 use dove::transport::TlsConfig;
 use rustls::OwnedTrustAnchor;
@@ -34,9 +33,9 @@ async fn main() {
 
     // If tls_config is Some, it will attempt to create a tls connection
     let opts = ConnectionOptions {
-        username: None,
-        password: None,
-        sasl_mechanism: Some(SaslMechanism::Anonymous),
+        username: Some(String::from("<sasl_key_name>")),
+        password: Some(String::from("<sasl_key>")),
+        sasl_mechanism: Some(SaslMechanism::Plain),
         idle_timeout: Some(Duration::from_secs(10)),
         tls_config: Some(TlsConfig {
             config: config,
@@ -57,18 +56,11 @@ async fn main() {
         .new_session(None)
         .await
         .expect("session not created");
-
-    let sender_new = session
-        .with_cbs(SasConfig::new(
-            "RootManageSharedAccessKey",
-            "blahblah=",
-            60 * 60 * 24 * 7,
-            "amqps://<namespace>.servicebus.windows.net:5671/<queue>"
-        ))
+    
+    let sender = session
+        .new_sender("amqps://<namespace>.servicebus.windows.net:5671/<queue>")
         .await
-        .new_sender("amqps://<namespace>:5671/<queue>")
-        .await
-        .unwrap();
+        .expect("sender not created");
 
-    sender_new.send(Message::amqp_value(Value::String(String::from("Hello from Rust.")))).await.unwrap();
+    let _ = sender.send(Message::amqp_value(Value::String(String::from("Hello from Rust.")))).await;
 }
