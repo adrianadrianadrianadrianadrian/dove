@@ -66,6 +66,7 @@ impl MessageBody {
         match self {
             MessageBody::Data(v) => Some(&v[..]),
             MessageBody::AmqpValue(Value::Binary(v)) => Some(&v[..]),
+            MessageBody::AmqpValue(Value::String(v)) => Some(v.as_bytes()),
             _ => None,
         }
     }
