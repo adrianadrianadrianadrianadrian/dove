@@ -22,6 +22,7 @@ async-channel = "1.6.1"
 thiserror = "1.0.25"
 derive_more = { version = "0.99.16", default-features = false, features = ["from"] }
 rustls = "0.20.0"
+env_logger = "0.8"
 
 [dev-dependencies]
 futures = "0.3"

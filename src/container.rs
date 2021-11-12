@@ -292,6 +292,7 @@ impl<S: Stream> ContainerInner<S> {
                 open.hostname = Some(host_name);
                 open.channel_max = Some(u16::MAX);
                 open.idle_timeout = options.idle_timeout.map(|d| d.as_millis() as _);
+                open.max_frame_size = options.max_frame_size;
                 open
             })?;
 
