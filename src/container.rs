@@ -263,7 +263,7 @@ impl<S: Stream> ContainerInner<S> {
             move || {
                 let result: Result<_> = (|| {
                     let network = transport::mio::MioNetwork::connect(&host, stream_config)?;
-                    let transport = transport::Transport::new(network, 1024);
+                    let transport = transport::Transport::new(network, 1048576);
                     let connection = conn::connect(transport, opts)?;
                     Ok(connection)
                 })();
@@ -292,7 +292,6 @@ impl<S: Stream> ContainerInner<S> {
                 open.hostname = Some(host_name);
                 open.channel_max = Some(u16::MAX);
                 open.idle_timeout = options.idle_timeout.map(|d| d.as_millis() as _);
-                open.max_frame_size = options.max_frame_size;
                 open
             })?;
 

@@ -33,7 +33,6 @@ async fn main() {
         password: Some(String::from("<sasl_key>")),
         sasl_mechanism: Some(SaslMechanism::Plain),
         idle_timeout: Some(Duration::from_secs(10)),
-        max_frame_size: Some(1024),
     };
 
     let container = Container::new_rustls(config)

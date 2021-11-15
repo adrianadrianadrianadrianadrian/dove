@@ -30,7 +30,6 @@ fn main() {
             Some(SaslMechanism::Plain)
         }),
         idle_timeout: Some(Duration::from_secs(5)),
-        max_frame_size: None,
     };
 
     let container = Container::new()

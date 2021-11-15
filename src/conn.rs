@@ -22,7 +22,6 @@ pub struct ConnectionOptions {
     pub password: Option<String>,
     pub sasl_mechanism: Option<SaslMechanism>,
     pub idle_timeout: Option<Duration>,
-    pub max_frame_size: Option<u32>,
 }
 
 impl ConnectionOptions {
@@ -32,7 +31,6 @@ impl ConnectionOptions {
             password: None,
             sasl_mechanism: None,
             idle_timeout: None,
-            max_frame_size: None,
         }
     }
 
@@ -42,7 +40,6 @@ impl ConnectionOptions {
             password: None,
             sasl_mechanism: Some(SaslMechanism::Anonymous),
             idle_timeout: None,
-            max_frame_size: None,
         }
     }
 
@@ -52,7 +49,6 @@ impl ConnectionOptions {
             password: Some(password),
             sasl_mechanism: Some(SaslMechanism::Plain),
             idle_timeout: None,
-            max_frame_size: None,
         }
     }
 

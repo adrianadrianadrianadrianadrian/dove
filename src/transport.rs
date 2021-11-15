@@ -74,11 +74,11 @@ impl ProtocolHeader {
     }
 }
 
-const BUFFER_SIZE: usize = 1024;
+const BUFFER_SIZE: usize = 1048576;
 
 #[derive(Debug)]
 struct Buffer {
-    buffer: [u8; BUFFER_SIZE],
+    buffer: Box<[u8; BUFFER_SIZE]>,
     capacity: usize,
     position: usize,
 }
@@ -86,7 +86,7 @@ struct Buffer {
 impl Buffer {
     fn new(capacity: usize) -> Buffer {
         Buffer {
-            buffer: [0; BUFFER_SIZE],
+            buffer: Box::new([0; BUFFER_SIZE]),
             capacity,
             position: 0,
         }
